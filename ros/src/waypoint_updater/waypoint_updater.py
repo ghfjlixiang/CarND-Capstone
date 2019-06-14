@@ -53,7 +53,7 @@ class WaypointUpdater(object):
         # TODO: Implement
         self.base_waypoints = waypoints
         if not self.waypoints_2d:
-            self.waypoints_2d = [[Waypoint.pose.pose.position.x, Waypoint.pose.pose.position.y] for Waypoint in waypoints.waypoint]
+            self.waypoints_2d = [[Waypoint.pose.pose.position.x, Waypoint.pose.pose.position.y] for Waypoint in waypoints.waypoints]
             self.waypoints_tree = KDTree(self.waypoints_2d)
         pass
 
