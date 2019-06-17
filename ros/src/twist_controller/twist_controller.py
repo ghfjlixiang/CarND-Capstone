@@ -11,7 +11,7 @@ class Controller(object):
     def __init__(self, *args, **kwargs):
         # TODO: Implement
         # pass
-		
+        
         tau = 0.5
         ts = .02
         self.vel_lpf = LowPassFilter(tau, ts)
@@ -33,7 +33,6 @@ class Controller(object):
         self.vehicle_mass = kwargs['vehicle_mass']
         self.fuel_capacity = kwargs['fuel_capacity']
         self.brake_deadband = kwargs['brake_deadband']
-        self.vehicle_mass = kwargs['vehicle_mass']
         self.decel_limit = kwargs['decel_limit']
         self.accel_limit = kwargs['accel_limit']
         self.wheel_radius = kwargs['wheel_radius']
@@ -45,15 +44,15 @@ class Controller(object):
         # TODO: Change the arg, kwarg list to suit your needs
         # Return throttle, brake, steer
         # return 1., 0., 0.
-		
+        
         proposed_linear_velocity = args[0]
         proposed_angular_velocity = args[1]
         current_linear_velocity = args[2]
         dbw_status = args[3]
 
         if not dbw_status:
-        	self.throttle_controller.reset()
-        	return 0., 0., 0.
+            self.throttle_controller.reset()
+            return 0., 0., 0.
 
         current_linear_velocity = self.vel_lpf.filt(current_linear_velocity)
 
@@ -61,7 +60,7 @@ class Controller(object):
         rospy.logwarn("Target linear velocity: {0}".format(proposed_linear_velocity))
         rospy.logwarn("Target angular velocity: {0}".format(proposed_angular_velocity))
         rospy.logwarn("Current linear velocity: {0}".format(current_linear_velocity))
-		rospy.logwarn("filtered linear velocity: {0}".format(self.vel_lpf.get()))
+        rospy.logwarn("filtered linear velocity: {0}".format(self.vel_lpf.get()))
 
         steer = self.yaw_controller.get_steering(proposed_linear_velocity, proposed_angular_velocity, current_linear_velocity)
 
@@ -73,12 +72,12 @@ class Controller(object):
 
         brake = 0
         if proposed_linear_velocity == 0. and current_linear_velocity < 0.1:
-        	throttle = 0
-        	brake = 400
+            throttle = 0
+            brake = 400
         elif throttle < .1 and vel_error < 0:
-        	throttle = 0
-        	decel = max(vel_error, self.decel_limit)
-        	brake = abs(decel)*self.vehicle_mass*self.wheel_radius #Torque N*m
+            throttle = 0
+            decel = max(vel_error, self.decel_limit)
+            brake = abs(decel)*self.vehicle_mass*self.wheel_radius #Torque N*m
 
         rospy.logwarn("throttle: {0} brake: {1} steer: {2}".format(throttle, brake, steer))
         return throttle, brake, steer
