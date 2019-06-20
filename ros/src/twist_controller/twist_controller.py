@@ -57,10 +57,10 @@ class Controller(object):
         current_linear_velocity = self.vel_lpf.filt(current_linear_velocity)
 
         # http://wiki.ros.org/rospy/Overview/Logging
-        rospy.logwarn("Target linear velocity: {0}".format(proposed_linear_velocity))
-        rospy.logwarn("Target angular velocity: {0}".format(proposed_angular_velocity))
-        rospy.logwarn("Current linear velocity: {0}".format(current_linear_velocity))
-        rospy.logwarn("filtered linear velocity: {0}".format(self.vel_lpf.get()))
+        # rospy.logwarn("Target linear velocity: {0}".format(proposed_linear_velocity))
+        # rospy.logwarn("Target angular velocity: {0}".format(proposed_angular_velocity))
+        # rospy.logwarn("Current linear velocity: {0}".format(current_linear_velocity))
+        # rospy.logwarn("filtered linear velocity: {0}".format(self.vel_lpf.get()))
 
         steer = self.yaw_controller.get_steering(proposed_linear_velocity, proposed_angular_velocity, current_linear_velocity)
 
@@ -69,6 +69,12 @@ class Controller(object):
         sample_time = now_time - self.last_time
         self.last_time = now_time
         throttle = self.throttle_controller.step(vel_error, sample_time)
+
+        rospy.loginfo("Target_lv: {0} Target_av: {1} Current_lv: {2}  filtered_lv: {3} sample_time: {4}".format(proposed_linear_velocity, 
+            proposed_angular_velocity, 
+            current_linear_velocity, 
+            self.vel_lpf.get(), 
+            sample_time))
 
         brake = 0
         if proposed_linear_velocity == 0. and current_linear_velocity < 0.1:
@@ -79,5 +85,5 @@ class Controller(object):
             decel = max(vel_error, self.decel_limit)
             brake = abs(decel)*self.vehicle_mass*self.wheel_radius #Torque N*m
 
-        rospy.logwarn("throttle: {0} brake: {1} steer: {2}".format(throttle, brake, steer))
+        # rospy.loginfo("throttle: {0} brake: {1} steer: {2}".format(throttle, brake, steer))
         return throttle, brake, steer

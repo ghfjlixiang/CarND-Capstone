@@ -33,8 +33,7 @@ that we have created in the `__init__` function.
 
 class DBWNode(object):
     def __init__(self):
-        # rospy.init_node('dbw_node')
-        rospy.init_node('dbw_node', log_level=rospy.WARN)
+        rospy.init_node('dbw_node')
 
         vehicle_mass = rospy.get_param('~vehicle_mass', 1736.35)
         fuel_capacity = rospy.get_param('~fuel_capacity', 13.5)
@@ -101,9 +100,12 @@ class DBWNode(object):
                                                                     self.dbw_status)
             if self.dbw_status:
                 self.publish(self.throttle, self.brake, self.steer)
+            else:
+               # rospy.logwarn("dbw disable")
             rate.sleep()
 
     def publish(self, throttle, brake, steer):
+        rospy.loginfo("throttle: {0} brake: {1} steer: {2}".format(throttle, brake, steer))
         tcmd = ThrottleCmd()
         tcmd.enable = True
         tcmd.pedal_cmd_type = ThrottleCmd.CMD_PERCENT
@@ -126,6 +128,7 @@ class DBWNode(object):
         self.proposed_angular_velocity = msg.twist.angular.z
 
     def dbw_enabled_cb(self, msg):
+        rospy.loginfo("DBW status changed to: %s", msg)
         self.dbw_status = msg
 
     def velocity_cb(self, msg):

@@ -183,6 +183,7 @@ class Bridge(object):
         self.publishers['image'].publish(image_message)
 
     def callback_steering(self, data):
+        rospy.loginfo("steering_angle: {0}".format(data.steering_wheel_angle_cmd))
         self.server('steer', data={'steering_angle': str(data.steering_wheel_angle_cmd)})
 
     def callback_throttle(self, data):
