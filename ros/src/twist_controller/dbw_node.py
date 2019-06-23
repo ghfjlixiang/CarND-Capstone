@@ -100,8 +100,7 @@ class DBWNode(object):
                                                                     self.dbw_status)
             if self.dbw_status:
                 self.publish(self.throttle, self.brake, self.steer)
-            else:
-               # rospy.logwarn("dbw disable")
+            
             rate.sleep()
 
     def publish(self, throttle, brake, steer):
