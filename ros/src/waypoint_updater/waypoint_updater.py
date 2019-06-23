@@ -25,7 +25,7 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 40 # Number of waypoints we will publish. You can change this number
 
 
 class WaypointUpdater(object):
@@ -53,9 +53,8 @@ class WaypointUpdater(object):
     def loop(self):
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
-            if not None in(self.pose, self.base_waypoints):
-                closest_idx = self.get_closest_waypoint_idx();
-                self.publish_waypoints(closest_idx)
+            if not None in(self.pose, self.base_waypoints, self.waypoints_tree):
+                self.publish_waypoints()
             rate.sleep()
 
     def get_closest_waypoint_idx(self):
@@ -91,27 +90,30 @@ class WaypointUpdater(object):
 
         return wps
 
-    def generate_lane(self, closest_idx):
+    def generate_lane(self):
         lane = Lane()
+
+        closest_idx = self.get_closest_waypoint_idx()
         farthest_idx = closest_idx + LOOKAHEAD_WPS
-        lane_waypoints = self.base_waypoints.waypoints[closest_idx:farthest_idx]
 
         if (self.stopline_wp_idx == -1) or (self.stopline_wp_idx >= farthest_idx):
+            lane_waypoints = self.base_waypoints.waypoints[closest_idx:farthest_idx]
             lane.waypoints = lane_waypoints
         else:
+            lane_waypoints = self.base_waypoints.waypoints[closest_idx:self.stopline_wp_idx]
             lane.waypoints = self.decelerate_waypoints(lane_waypoints, closest_idx)
 
         rospy.loginfo("closest_idx: {0} farthest_idx: {1} stopline_wp_idx: {2}".format(closest_idx, farthest_idx, self.stopline_wp_idx))
 
         return lane
 
-    def publish_waypoints(self, closest_idx):
+    def publish_waypoints(self):
         # lane = Lane()
         # lane.header = self.base_waypoints.header
         # lane.waypoints = self.base_waypoints.waypoints[closest_idx:(closest_idx + LOOKAHEAD_WPS)]
         # self.final_waypoints_pub.publish(lane)
 
-        final_lane = self.generate_lane(closest_idx)
+        final_lane = self.generate_lane()
         self.final_waypoints_pub.publish(final_lane)
 
     def pose_cb(self, msg):
