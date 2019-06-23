@@ -82,7 +82,7 @@ class TLDetector(object):
         light_wp, state = self.process_traffic_lights()
 
         rospy.loginfo("last_state: {0} current_state: {1} new_state: {2}  state_count{3} last_wp: {4} light_wp: {5}".format(
-            self.last_state, self.state, state, state_count, 
+            self.last_state, self.state, state, self.state_count, 
             self.last_wp, light_wp))
 
         '''
