@@ -133,7 +133,7 @@ class WaypointUpdater(object):
         # TODO: Callback for /traffic_waypoint message. Implement
         # pass
         rospy.loginfo("traffic_waypoint topic message: %s",msg)
-        self.stopline_wp_idx = msg
+        self.stopline_wp_idx = msg.data
 
     def obstacle_cb(self, msg):
         # TODO: Callback for /obstacle_waypoint message. We will implement it later
