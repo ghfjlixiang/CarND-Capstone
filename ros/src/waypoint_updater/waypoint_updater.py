@@ -26,7 +26,8 @@ TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
 LOOKAHEAD_WPS = 40 # Number of waypoints we will publish. You can change this number
-
+MAX_DECEL = 10     # Max acceleration is 10 m/s^2
+MAX_JERK = 10      # Max jerk is 10 m/s^3
 
 class WaypointUpdater(object):
     def __init__(self):
