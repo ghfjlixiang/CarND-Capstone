@@ -157,25 +157,26 @@ class TLDetector(object):
         if(self.pose):
             car_position = self.get_closest_waypoint(self.pose.pose)
 
-        #TODO find the closest visible traffic light (if one exists)
-        diff = len(self.waypoints.waypoints)
-        for i, e in enumerate(self.lights):
-            stop_line_pose = Pose()
-            stop_line_pose.position.x = stop_line_positions[i][0]
-            stop_line_pose.position.y = stop_line_positions[i][1]
-            stop_line_position = self.get_closest_waypoint(stop_line_pose)
-            d = stop_line_position - car_position
-            if d >= 0 and d < diff:
-                diff = d
-                light = e
-                light_wp = stop_line_position
+            #TODO find the closest visible traffic light (if one exists)
+            diff = len(self.waypoints.waypoints)
+            for i, e in enumerate(self.lights):
+                stop_line_pose = Pose()
+                stop_line_pose.position.x = stop_line_positions[i][0]
+                stop_line_pose.position.y = stop_line_positions[i][1]
+                stop_line_position = self.get_closest_waypoint(stop_line_pose)
+                d = stop_line_position - car_position
+                if d >= 0 and d < diff:
+                    diff = d
+                    light = e
+                    light_wp = stop_line_position
         if light:
             state = self.get_light_state(light)
             return light_wp, state
+
+        rospy.logawrn("Go through the last traffic light at position: %s",car_position)
         return -1, TrafficLight.UNKNOWN
 
-if __name__ == '__main__':
-    try:
+if __name__ == '__main__Go through the last traffic light at try:
         TLDetector()
     except rospy.ROSInterruptException:
         rospy.logerr('Could not start traffic node.')
