@@ -173,7 +173,7 @@ class TLDetector(object):
             state = self.get_light_state(light)
             return light_wp, state
 
-        rospy.logawrn("Go through the last traffic light at position: %s",car_position)
+        rospy.logawarn("Go through the last traffic light at position: %s",car_position)
         return -1, TrafficLight.UNKNOWN
 
 if __name__ == '__main__':
