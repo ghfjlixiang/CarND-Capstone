@@ -176,7 +176,7 @@ class TLDetector(object):
         rospy.logawrn("Go through the last traffic light at position: %s",car_position)
         return -1, TrafficLight.UNKNOWN
 
-if __name__ == '__main__Go through the last traffic light at try:
+if __name__ == '__main__':
         TLDetector()
     except rospy.ROSInterruptException:
         rospy.logerr('Could not start traffic node.')
