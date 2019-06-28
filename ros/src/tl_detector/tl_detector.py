@@ -84,7 +84,6 @@ class TLDetector(object):
         rospy.loginfo("last_state: {0} current_state: {1} new_state: {2}  state_count: {3} last_wp: {4} light_wp: {5} car_pos: {6}".format(
             self.last_state, self.state, state, self.state_count, 
             self.last_wp, light_wp, self.get_closest_waypoint(self.pose.pose)))
-()
         '''
         Publish upcoming red lights at camera frequency.
         Each predicted state has to occur `STATE_COUNT_THRESHOLD` number
