@@ -100,7 +100,7 @@ class WaypointUpdater(object):
         if (self.stopline_wp_idx == -1) or (self.stopline_wp_idx >= farthest_idx):
             lane.waypoints = lane_waypoints
         else:
-            stopline_idx = max(self.stopline_wp_idx-closest_idx-2, 0)
+            stopline_idx = max(self.stopline_wp_idx-closest_idx-10, 0)
             lane.waypoints = self.decelerate_waypoints(lane_waypoints, stopline_idx)
 
         return lane
