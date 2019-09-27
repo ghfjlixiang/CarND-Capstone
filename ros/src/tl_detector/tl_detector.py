@@ -122,7 +122,22 @@ class TLDetector(object):
 
         x = pose.position.x
         y = pose.position.y
-        return self.waypoints_tree.query([x, y], 1)[1]
+        # return self.waypoints_tree.query([x, y], 1)[1]
+        
+		# Check if closest is ahead or behind vehicles
+        closest_coord = self.waypoints_2d[closest_idx]
+        pre_coord = self.waypoints_2d[closest_idx-1]
+
+        # Equation for hyperplane through closest_coords
+        cl_vect = np.array(closest_coord)
+        prev_vect = np.array(pre_coord)
+        pos_vect = np.array([x,y])
+
+        val = np.dot(cl_vect-prev_vect,pos_vect-cl_vect)
+
+        if val > 0:
+            closest_idx = (closest_idx + 1)% len(self.waypoints_2d)
+        return closest_idx
 
     def get_light_state(self, light):
         """Determines the current color of the traffic light
