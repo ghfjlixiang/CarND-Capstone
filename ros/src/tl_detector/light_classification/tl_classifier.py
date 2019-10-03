@@ -17,6 +17,10 @@ class TLClassifier(object):
                 serialized_graph = fid.read()
                 od_graph_def.ParseFromString(serialized_graph)
                 tf.import_graph_def(od_graph_def, name='')
+        # create tensorflow session
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        self.session = tf.Session(graph=self.detection_graph, config=config)
 
     def get_classification(self, image):
         """Determines the color of the traffic light in the image
