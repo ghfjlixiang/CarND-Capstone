@@ -9,14 +9,8 @@ class TLClassifier(object):
         #TODO load classifier
         #pass
 		# load frozen tensorflow model into memory
-		PATH_TO_FROZEN_GRAPH = 'light_classification/model/frozen_inference_graph_sim.pb'
-        self.detection_graph = tf.Graph()
-        with self.detection_graph.as_default():
-            od_graph_def = tf.GraphDef()
-            with tf.gfile.GFile(PATH_TO_FROZEN_GRAPH, 'rb') as fid:
-                serialized_graph = fid.read()
-                od_graph_def.ParseFromString(serialized_graph)
-                tf.import_graph_def(od_graph_def, name='')
+        GRAPH_FILE = 'light_classification/model/frozen_inference_graph_sim.pb'
+        self.detection_graph = load_graph(GRAPH_FILE)
         # create tensorflow session
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -34,3 +28,14 @@ class TLClassifier(object):
         """
         #TODO implement light color prediction
         return TrafficLight.UNKNOWN
+
+    def load_graph(self, graph_file):
+        """Loads a frozen inference graph"""
+        graph = tf.Graph()
+        with graph.as_default():
+            od_graph_def = tf.GraphDef()
+            with tf.gfile.GFile(graph_file, 'rb') as fid:
+                serialized_graph = fid.read()
+                od_graph_def.ParseFromString(serialized_graph)
+                tf.import_graph_def(od_graph_def, name='')
+        return graph
