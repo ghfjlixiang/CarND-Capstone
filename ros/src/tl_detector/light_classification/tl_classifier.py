@@ -15,6 +15,24 @@ class TLClassifier(object):
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
         self.session = tf.Session(graph=self.detection_graph, config=config)
+        
+		# `get_tensor_by_name` returns the Tensor with the associated name in the Graph.
+        # extract the relevant tensors which reflect the outputs of the graph
+		ops = self.detection_graph.get_operations()
+        all_tensor_names = {output.name for op in ops for output in op.outputs}
+        self.tensor_dict = {}
+        for key in [
+            'num_detections', 'detection_boxes', 'detection_scores',
+            'detection_classes'
+        ]:
+            tensor_name = key + ':0'
+            if tensor_name in all_tensor_names:
+                self.tensor_dict[key] = self.detection_graph.get_tensor_by_name(
+                tensor_name)
+		
+		# extract the relevant tensors which reflect the input of the graph
+		# The input placeholder for the image.
+        self.image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
 
     def get_classification(self, image):
         """Determines the color of the traffic light in the image
