@@ -57,3 +57,22 @@ class TLClassifier(object):
                 od_graph_def.ParseFromString(serialized_graph)
                 tf.import_graph_def(od_graph_def, name='')
         return graph
+
+    def run_inference_for_single_image(self, image, graph):
+        """Run detection and classification on a sample image.
+
+        Args:
+            image：
+            graph：
+
+        Returns:
+        """
+        output_dict = self.session.run(self.tensor_dict,
+                                feed_dict={self.image_tensor: image})
+
+        # all outputs are float32 numpy arrays, so convert types as appropriate
+        output_dict['num_detections'] = int(output_dict['num_detections'][0])
+        output_dict['detection_classes'] = output_dict['detection_classes'][0].astype(np.int64)
+        output_dict['detection_boxes'] = output_dict['detection_boxes'][0]
+        output_dict['detection_scores'] = output_dict['detection_scores'][0]
+        return output_dict
