@@ -8,6 +8,8 @@ class TLClassifier(object):
     def __init__(self):
         #TODO load classifier
         #pass
+		self.is_site = FALSE
+        self.image_result_show = False
 		# load frozen tensorflow model into memory
         GRAPH_FILE = 'light_classification/model/frozen_inference_graph_sim.pb'
         self.detection_graph = load_graph(GRAPH_FILE)
@@ -45,7 +47,64 @@ class TLClassifier(object):
 
         """
         #TODO implement light color prediction
-        return TrafficLight.UNKNOWN
+        light_thresh = 0.4
+        current_light = TrafficLight.UNKNOWN
+        # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
+        image_cp = image.copy()
+        image_np_expanded = np.expand_dims(image_cp, axis=0)
+
+        # Actual detection.
+        output_dict = self.run_inference_for_single_image(image_np_expanded, self.detection_graph)
+
+        # Show classified result image for test
+        if self.image_result_show:
+            img_width,img_height,depth = image.shape
+            font = cv.FONT_HERSHEY_COMPLEX
+            category_index = {1: {'id': 1, 'name': 'Green'}, 2: {'id': 2, 'name': 'Red'},
+                    3: {'id': 3, 'name': 'Yellow'}, 4: {'id': 4, 'name': 'off'}}
+            for i in range(output_dict['num_detections']):
+                top_y = output_dict['detection_boxes'][i][0] * img_width
+                top_x = output_dict['detection_boxes'][i][1] * img_height
+                botom_y = output_dict['detection_boxes'][i][2] * img_width
+                botom_x = output_dict['detection_boxes'][i][3] * img_height
+                score = output_dict['detection_scores'][i]
+                class_name = category_index[output_dict['detection_classes'][i]]['name']
+                if score > light_thresh:
+                    cv.rectangle(image_cp, (int(top_x), int(top_y)), (int(botom_x), int(botom_y)), (0, 0, 255), thickness=2)
+                    cv.putText(image_cp, str(class_name) + ' ' + str(score), (int(top_x), int(top_y)), font, 0.8,(255, 255, 255), 1)
+            cv.namedWindow('result', cv.WINDOW_NORMAL)
+            cv.imshow('result', image_cp)
+            cv.waitKey(1)
+        
+        # init red light score
+        red_score_max = 0
+        img_width,img_height,depth = image.shape
+        for i in range(output_dict['num_detections']):
+            if self.is_site or output_dict['detection_classes'][i]==2:        #if sim, just get red light max score 
+                if output_dict['detection_scores'][i] > red_score_max:        #if site, need get all traffic light max score
+                    red_score_max = output_dict['detection_scores'][i]
+                    top_y = output_dict['detection_boxes'][i][0] * img_width
+                    top_x = output_dict['detection_boxes'][i][1] * img_height
+                    botom_y = output_dict['detection_boxes'][i][2] * img_width
+                    botom_x = output_dict['detection_boxes'][i][3] * img_height
+        if self.is_site:       # if site mode, need classified the light color based image color
+            if red_score_max > light_thresh:
+                lightImg = image[int(top_y):int(botom_y),int(top_x):int(botom_x)]   # crop traffic image
+                current_light = self.light_color(lightImg)        # get traffic light color
+            else:
+                current_light = TrafficLight.GREEN
+        else:
+            if red_score_max > light_thresh:
+                current_light = TrafficLight.RED
+            else:
+                current_light = TrafficLight.GREEN 
+
+        if current_light == TrafficLight.RED:
+            print('currend light is RED')
+        else:
+            print('currend light is GREEN')
+		
+        return current_light
 
     def load_graph(self, graph_file):
         """Loads a frozen inference graph"""
